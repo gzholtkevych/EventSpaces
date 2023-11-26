@@ -19,43 +19,31 @@ Inductive increasing : list Atom -> Prop :=
 Definition AtomSet := {xs : list Atom | increasing xs}.
 Coercion to_list (xs : AtomSet) : list Atom := proj1_sig xs.
 
-Fixpoint range(n m : nat) : list Atom :=
+Fixpoint range_list(n m : nat) : list Atom :=
    match m with
    | 0 => []
-   | S m' => a n :: range (S n) m'
+   | S m' => a n :: range_list (S n) m'
    end.
 
-Lemma k_in_range_n_m : forall n m k, n <= k < n + m -> In (a k) (range n m).
+Lemma inc_range_list : forall n m, increasing (range_list n m).
 Proof.
-  intros *. revert n k.
-  induction m as [| m' IHm']; intros.
-  - destruct H as (H1, H2).
-    assert (H3 : n < n). {
-      apply Nat.lt_trans with k.
-      - unfold "_ < _".
-  - destruct H as (H1, H2). simpl.
-    assert (H3 : k <= m'). { unfold "_ < _" in H2. now apply le_S_n. }
-    clear H2.
-    assert ({k = m'} + {S n <= k < m'} + {n = k}). {
-      destruct (le_lt_eq_dec n k H1).
-      - left. destruct (le_lt_eq_dec k m' H3).
-        + right.  split; assumption.
-        + now left.
-      - now right. }
-    destruct H.
-    + destruct s.
-      * right. apply IHm'. admit.
-      * right. now apply IHm'.
-    + left. now rewrite e.
-
-Definition ininat (n : nat) : list Atom := range 0 n.
-
-Lemma ininnat_inc : forall n, increasing (ininat n).
-Proof.
-  intro.
-  induction n as [| n' IHn'].
+  intros.
+  destruct m as [| m'].
   - constructor.
-  - simpl.
-    destruct IHn'.
+  - revert n.
+    induction m' as [| m'' IHm'']; intro.
     + constructor.
-    + 
+    + simpl in IHm'' |-*. constructor; [ constructor | apply IHm'' ].
+Qed.
+
+Lemma k_in_n_m : forall n m k, n <= k < n + m -> In (a k) (range_list n m).
+Admitted.
+
+Lemma n_m_holds_k : forall n m k, In (a k) (range_list n m) -> n <= k < n + m.
+Admitted.
+
+Definition range (n m : nat) : AtomSet.
+Proof. exists (range_list n m). exact (inc_range_list n m). Defined.
+
+Definition ini_range(n : nat) : AtomSet := range 0 n.
+
