@@ -65,7 +65,7 @@ Proof.
       * rewrite <- plus_n_Sm. apply le_n_S. apply Nat.le_add_r.
     + pose (IH := IHm' (S n) k H). destruct IH as (Hle, Hlt).
       split.
-      * now apply Le.le_Sn_le_stt.
+      * now apply Nat.lt_le_incl.
       * rewrite <- plus_n_Sm. now rewrite plus_Sn_m in Hlt.
 Qed.
 
