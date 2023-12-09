@@ -1,65 +1,30 @@
-Require Import Utf8.
-Require Import Arith.PeanoNat.
+Require Export Utf8.
 Require Import Lists.List.
 Import ListNotations.
+Require Import Arith.Compare_dec.
+Require Import Arith.PeanoNat.
 
 
-Inductive clock : Set :=
-  | some_clock : clock
-  | other_clock : clock → clock.
+Inductive clock := clk : nat -> clock.
+Definition id (c : clock) : nat := let 'clk n := c in n.
 
-Fixpoint nth_clock (n : nat) : clock :=
-  match n with
-  | 0 => some_clock
-  | S n' => other_clock (nth_clock n')
-  end.
-
-Lemma nth_clock_inj : ∀ n m, nth_clock n = nth_clock m → n = m.
+Lemma id_inj : ∀ c1 c2, id c1 = id c2 → c1 = c2.
 Proof.
-  intro.
-  induction n as [| n' IHn'].
-  - intros. simpl in H.
-    destruct m as [| m']; [ reflexivity | simpl in H; discriminate H ].
-  - intro. revert n' IHn'.
-    destruct m as [| m']; intros.
-    + simpl in H. discriminate H.
-    + simpl in H.
-      assert (nth_clock n' = nth_clock m'). now  injection H.
-      assert (n' = m'). now apply IHn'. now rewrite H1.
+  intros.
+  destruct c1 as [n1], c2 as [n2].
+  simpl in H. now rewrite H.
 Qed.
 
-Lemma nth_clock_surj : ∀ c : clock, ∃ n, c = nth_clock n.
+Lemma id_surj : ∀ c, clk (id c) = c.
 Proof.
-  intro.
-  induction c as [| c' IHc'].
-  - exists 0. reflexivity.
-  - destruct IHc' as [n']. exists (S n'). rewrite H. reflexivity.
+  intro. now destruct c as [n].
 Qed.
 
 Definition clock_eq_dec : ∀ c1 c2 : clock, {c1 = c2} + {c1 ≠ c2}.
 Proof.
-  intros. induction c1 as [| c1' IHc1'].
-    destruct c2.
-      now left.
-      right. intro. discriminate H.
-    revert c1' IHc1'. induction c2; intros.
-      
-
-    induction c1 as [| c1' IHc1']; intro.
-      right. intro. discriminate H.
-    + right. rewrite e. intro. inversion_clear H.
-(*
-Section AtomSets.
-Variables
-  (atom : Set)
-  (from_nat : nat → atom)
-  (to_nat : atom →  nat).
-Context `{atom_is_Atom : Atom atom from_nat to_nat}.
-
-  Definition AtomSet :=
-    {f : atom → Prop | ∃ n : nat, ∀ a, f a → to_nat a ≤ n}.
-
-  Definition 
-
-End AtomSets.
-*)
+  intros.
+  destruct c1 as [n1], c2 as [n2].
+  destruct (Nat.eq_dec n1 n2) as [E | NE].
+  - left. now rewrite E.
+  - right. intro. apply NE. now injection H.
+Defined.
