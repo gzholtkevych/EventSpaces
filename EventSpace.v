@@ -1,6 +1,6 @@
 Require Export EventSpaces.Clocks.
 
-Class anEventSet (event : clock -> nat -> Prop) := {
+Class anEventSet (event : clock → nat -> Prop) := {
   finclock : ∃ n, ∀ c, id c ≥ n → ¬ (event c n);
   downward : ∀ c n, event c (S n) → event c n
 }.
