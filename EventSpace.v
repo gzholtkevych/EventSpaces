@@ -1,8 +1,14 @@
 Require Export EventSpaces.Clocks.
 
-Class anEventSet (event : clock → nat -> Prop) := {
-  finclock : ∃ n, ∀ c, id c ≥ n → ¬ (event c n);
-  downward : ∀ c n, event c (S n) → event c n
+
+Record allEvent : Set := mkAllEvent {
+  src : clock;
+  num : nat
+}.
+
+Class anEventSet (event : allEvent -> Prop) := {
+  finclock : ∃ n, ∀ c m, id c ≥ n → ¬ event {| src := c; num := m |};
+  downward : ∀ e, event {| src := src e; num := S (num e) |} → event e
 }.
 
 Class anEventSpace
