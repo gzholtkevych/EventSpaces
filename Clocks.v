@@ -1,15 +1,15 @@
-Require Export Utf8.
+Require Export Init.
 Require Import Arith.PeanoNat.
 
 
-Inductive clock := clk : nat -> clock.
-Definition id (c : clock) : nat := let 'clk n := c in n.
+Inductive clock : Set := nthClock : nat -> clock.
+Definition toNat (c : clock) : nat := let 'nthClock n := c in n.
 
-Lemma id_clk : ∀ n, id (clk n) = n.
+Lemma toNat_nthClock : ∀ n, toNat (nthClock n) = n.
 Proof. trivial. Qed.
 
-Lemma clk_id : ∀ c, clk (id c) = c.
-Proof. intro. now destruct c as [n]. Qed.
+Lemma nthClock_toNat : ∀ c, nthClock (toNat c) = c.
+Proof. intro. now destruct c. Qed.
 
 Definition clock_eq_dec : ∀ c1 c2 : clock, {c1 = c2} + {c1 ≠ c2}.
 Proof.
