@@ -1,4 +1,4 @@
-<H1>Clock Model: Concept</H1>
+<H1>Clock Model: Conceptual View</H1>
 
 # Motivation
 
