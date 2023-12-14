@@ -24,4 +24,11 @@ Coercion toNat := fun c : clock => let 'nthClock n := c in n.
 # Clock Sets
 
 Also, we consider finite sets of clocks, which are called clock sets.
-For referring to the set of all clock sets, the denotation $[\mathcal{C}]^{<\omega}$ is used.
+For referring to the set of all clock sets, the denotation $\mathtt{ClockSet}$ is used.
+
+The use of function $\mathtt{toNat}$ provides to model an element of $\mathtt{ClockSet}$ by a list of clocks with the property of increasing i. e. $\mathtt{toNat}\,c'<\mathtt{toNat}\,c''$ if the position of $c'$ in such a list is less than the position of $c''$ in this list.<br/>
+That is, the model of the set $\mathtt{ClockSet}$ is the following type
+
+```
+Definition ClockSet := {cs : list clock | increasing cs}.
+```
