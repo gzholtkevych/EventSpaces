@@ -30,5 +30,13 @@ The use of function $\mathtt{toNat}$ provides to model an element of $\mathtt{Cl
 That is, the model of the set $\mathtt{ClockSet}$ is the following type
 
 ```
-Definition ClockSet := {cs : list clock | increasing cs}.
+Definition ClockSet := {cs : list clock | increasing cs}
+```
+where the predicate `increasing: list clock -> Prop` is defined as follows
+
+```
+Inductive increasing : list clock -> Prop :=
+  | inc0 : increasing []
+  | inc1 : forall c, increasing [c]
+  | incS : forall c1 c2 cs, toNat c1 < toNat C2 -> increasing (C2 :: cs) -> increasing (c1 :: c2 :: cs).
 ```
