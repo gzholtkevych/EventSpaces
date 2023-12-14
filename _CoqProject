@@ -1,6 +1,7 @@
 -R . EventSpaces
 -arg -w
 -arg all
-Clocks.v
+Init.v
+BasicNotions.v
 EventSpace.v
 Examples.v
