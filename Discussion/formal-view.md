@@ -40,3 +40,7 @@ Inductive increasing : list clock -> Prop :=
   | inc1 : forall c, increasing [c]
   | incS : forall c1 c2 cs, toNat c1 < toNat C2 -> increasing (C2 :: cs) -> increasing (c1 :: c2 :: cs).
 ```
+For $\mathtt{ClockSet}$, we the coercion
+
+```
+Coercion toList := fun cs : ClockSet => proj1_sig cs. 
