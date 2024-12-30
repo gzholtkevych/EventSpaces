@@ -1,5 +1,5 @@
-Require Import Diagram.
-Require Import Vocabulary.
+Require Import EDiagrams.Diagram.
+Require Import EDiagrams.Vocabulary.
 Require Import Coq.Arith.PeanoNat.
 
 
