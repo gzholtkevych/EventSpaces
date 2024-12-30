@@ -2,7 +2,7 @@
 
 -arg "-w all"
 
-Enum.v
+FiniteSets.v
 Vocabulary.v
 Diagram.v
 CausalOrder.v
