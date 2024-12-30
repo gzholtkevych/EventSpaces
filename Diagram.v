@@ -1,4 +1,4 @@
-Require Import DisCo.Vocabulary.
+Require Import EDiagrams.Vocabulary.
 Require Import Coq.Lists.List.
 
 Notation FSet := FSetPID.type (only parsing).
