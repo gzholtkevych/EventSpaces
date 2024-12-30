@@ -1,1 +1,1 @@
-# EventSpaces
+# Event Diagrams
