@@ -1,29 +1,50 @@
-Require Export EventSpaces.Clocks.
+Require Import DisCo.Atoms_modular.
+Require Import Coq.Lists.List.
 
-Class anEventSet (event : clock → nat -> Prop) := {
-  finclock : ∃ n, ∀ c, id c ≥ n → ¬ (event c n);
-  downward : ∀ c n, event c (S n) → event c n
+Notation FSet := FSetPID.type (only parsing).
+Notation size := FSetPID.size (only parsing).
+(* Notation tolist := FSetPID.tolist  (only parsing). *)
+Coercion FSetPID.tolist : FSet >-> list.
+
+
+Section DiagramClass.
+Variable participants : FSet.
+(* refers to the set of diagram participants *)
+Variable event : EventTag -> Prop.
+(* picks events related to the diagram *)
+Variable sending : EventTag -> option EventTag.
+(* refers to the corresponding sending event if the argument is
+   a receiving event *)
+
+  Class aDiagram : Prop :=
+  (* gathers the constraints relevant to the diagram cocept *)
+  { at_least_two : size participants >= 2
+    (* number of participants is at least two *)
+  ; only_participants : forall e, event e -> In (pid e) participants
+    (* each event related to a diagram is entered in the register of
+       some diagram participant *) 
+  ; gaplessness :
+      forall e n, event e -> n < num e -> event {| pid := pid e; num := n |}
+    (* numbering in each register of a participant has no gap *)
+  ; sending_dom : forall e, sending e <> None -> event e
+    (* 'sending' is defined only for events related to the diagram but
+       perhaps not for all *)
+  ; sending_cod : forall e e', sending e = Some e' -> event e'
+    (* 'sending' ranges only over events related to the diagrams but
+       perhaps not all *)
+  ; lack_of_sending_to_itself :
+      forall e e', Some e = sending e' -> pid e <> pid e'
+    (* there is no manner to send a message from a participant to itself *)
+  ; sending_injectivity :
+      forall e' e'' e, Some e = sending e' -> Some e = sending e'' -> e' = e''
+    (* each sending event corresponds exactly one receiving event *)
+  }.
+End DiagramClass.
+
+
+Structure Diagram :=
+{ participants : FSet
+; event : EventTag -> Prop
+; sending : EventTag -> option EventTag
+; diagram_guarantees : aDiagram participants event sending
 }.
-
-Class anEventSpace
-  (event : clock → nat → Prop)
-  `{anEventSet event}
-  (prec : clock → nat → clock → nat → Prop) := {
-  prec_irrefl : ∀ c n, ¬ prec c n c n;
-  prec_trans :
-    ∀ c1 n1 c2 n2 c3 n3, 
-      prec c1 n1 c2 n2 → prec c2 n2 c3 n3 → prec c1 n1 c3 n3;
-  local_linearity :
-    ∀ c n1 n2, event c n1 → event c n2 → n1 < n2 ↔ prec c n1 c n2;
-  finitenes2 :
-    ∀ c n, event c n → ∃ N, ∀ m c', event c' m → prec c' m c n → m < N
-}.
-Check anEventSpace.
-
-Structure eventSpace := mkEventSpace {
-  event : clock → nat → Prop;
-  eventSet_evidence : anEventSet event; 
-  prec : clock → nat → clock → nat → Prop;
-  event_guarantees : anEventSpace event prec
-}.
-
