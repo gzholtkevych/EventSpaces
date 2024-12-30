@@ -1,4 +1,4 @@
-Require Import DisCo.Atoms_modular.
+Require Import DisCo.Vocabulary.
 Require Import Coq.Lists.List.
 
 Notation FSet := FSetPID.type (only parsing).
