@@ -1,4 +1,4 @@
-Require Import DisCo.Enum_modular.
+Require Import EDiagrams.FiniteSets.
 (* Require Import Coq.Arith.Cantor. *)
 
 (* Here, the concepts of a participant identifier and
