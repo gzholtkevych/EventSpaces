@@ -134,16 +134,69 @@ Fixpoint fromlist {X : Set} `{Enum X} (lst : list X) : FSet X :=
   end.
 
 
-  Definition remove (x : universe) (A : type) : type.
+Section RemoveOperation.
+Variable X : Set.
+Context `{Enum X}.
+
+  Fixpoint aux_remove (x : X) (lst : list X) : list X :=
+    match lst with
+    | nil       => nil
+    | y :: lst' => match eq_dec x y with
+        | left _  => lst'
+        | right _ => y :: (aux_remove x lst')
+        end
+    end.
+
+  Lemma aux_remove_keeps_increasing :
+    forall x lst, increasing lst -> increasing (aux_remove x lst).
+  Proof.
+    intros.
+    induction lst as [| y lst' IHlst'].
+    - constructor.
+    - destruct lst' as [| z lst''].
+      * simpl. destruct (eq_dec x y) as [H1 | H1]; constructor.
+      * assert (H1 : increasing (aux_remove x (z :: lst''))). {
+          apply IHlst'. now apply increasing_tail with y. }
+        simpl in H1 |-*. destruct (eq_dec x y) as [H2 | H2];
+        destruct (eq_dec x z) as [H3 | H3];
+        try (now apply increasing_tail with y).
+        2 : { constructor; trivial. now inversion_clear H0. }
+        inversion_clear H0.
+        destruct lst'' as [| u lst''']; constructor.
+        2 : { now apply increasing_tail with z. }
+        apply Nat.lt_trans with (tonat z); trivial.
+        now inversion_clear H5.
+  Qed.
+
+  Definition remove (x : X) (A : FSet X) : FSet X.
   Proof.
     destruct A as (lst, H0).
-    induction lst as [| y lst' IHlst'].
-    + exact empty.
-    + destruct EnumM.eq_dec with x y as [H | H].
-      * exists lst'. now apply increasing_tail with y.
-      * assert (H1 : increasing lst'). { now apply increasing_tail with y. }
-        exact (push y (IHlst' H1)).
+    exists (aux_remove x lst).
+    now apply aux_remove_keeps_increasing.
   Defined.
+
+  Lemma remove_not_In : forall x A, ~ In x (remove x A).
+  Proof.
+    intros * N. destruct A as (lst, H0). simpl in N.
+    induction lst as [| y lst' IHlst'].
+    - simpl in N. contradiction.
+    - destruct lst' as [| z lst''].
+      * 
+      + now apply increasing_tail with y.
+      + assert (H1 : In x (aux_remove x lst') -> False). {
+          apply IHlst'. now apply increasing_tail with y. }
+        simpl in N. destruct (eq_dec x y) as [H2 | H2];
+        destruct lst' as [| z lst''].
+        * contradiction.
+        * simpl in N. destruct N as [H3 | H3].
+          -- rewrite H3 in H1. rewrite H3.
+             simpl in H1 |-*. destruct (eq_dec x x). contradict H1. 
+
+ simpl in N. destruct (eq_dec x y) as [H1 | H1].
+        destruct lst' as [| z lst''].
+        * contradiction.
+        * simpl. destruct (eq_dec x z) as [H2 | H2].
+          2 : { simpl in N |-*.
 
 End FSet.
 
