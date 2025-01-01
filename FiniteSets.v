@@ -180,8 +180,64 @@ Context `{Enum X}.
     intros * N. destruct A as (lst, H0). simpl in N.
     induction lst as [| y lst' IHlst'].
     - simpl in N. contradiction.
-    - destruct lst' as [| z lst''].
-      * 
+    - destruct lst' as [| z lst'']; simpl in N;
+      destruct (eq_dec x y) as [H1 | H1].
+      + contradiction.
+      + simpl in N. destruct N as [H2 | H2];
+        contradiction || rewrite H2 in H1. contradiction.
+      + simpl in N. simpl in IHlst'.
+        destruct (eq_dec x z) as [H2 | H2];
+        destruct N as [H3 | H3].
+        * rewrite <- H1 in H0. rewrite H3 in H0.
+          apply Nat.lt_irrefl with (tonat x).
+          now inversion_clear H0.
+        * rewrite <- H1 in H0. rewrite <- H2 in H0.
+          apply Nat.lt_irrefl with (tonat x).
+          now inversion_clear H0.
+        * symmetry in H3. contradiction.
+        * simpl in IHlst'.
+          assert (H4 : z = x \/ In x (aux_remove x lst'') -> False). {
+            apply IHlst'. now apply increasing_tail with y. }
+          elim H4. right.
+          destruct lst'' as [| u lst''']; try contradiction.
+          simpl in H3 |-*. destruct (eq_dec x u) as [H5 | H5].
+          elim H3; intro H6.
+          2 : { assumption. }
+          1 : { exfalso. rewrite <- H1 in H0. rewrite H6 in H0.
+            apply Nat.lt_irrefl with (tonat x).
+            apply Nat.lt_trans with (tonat z).
+            - now inversion_clear H0.
+            - assert (H7 : increasing (z :: x :: lst''')). {
+                now apply increasing_tail with x. }
+              now inversion_clear H7. }
+          simpl.
+        
+
+        * destruct N; contradiction || rewrite H2 in H1. contradiction.
+      + simpl in N. destruct (eq_dec x y) as [H1 | H1]; simpl in N.
+        destruct N as [H2 | H2].
+        * apply Nat.lt_irrefl with (tonat x). rewrite <- H1 in H0.
+          rewrite H2 in H0. now inversion_clear H0.
+        * rewrite H1 in H2.
+          assert (H3 : In x (aux_remove x (z :: lst'')) -> False). {
+            apply IHlst'. now apply increasing_tail with y. }
+          simpl in H3. destruct (eq_dec x z) as [H4 | H4].
+            rewrite H1 in H3. contradiction.
+
+          destruct lst'' as [| u lst''']; try contradiction.
+          simpl in H2.
+
+
+assert (H1 : In x (aux_remove x (z :: lst'')) -> False). {
+          apply IHlst'. now apply increasing_tail with y. }
+        apply H1. simpl in N. ; simpl in N;
+        simpl; destruct (eq_dec x z) as [H3 | H3].
+        * destruct N; trivial. exfalso. apply Nat.lt_irrefl with (tonat x).
+          rewrite <- H2 in H0. rewrite H4 in H0. now inversion_clear H0.
+        * destruct N as [H4 | H4]; try (symmetry in H4; contradiction).
+          simpl. right.
+          destruct lst'' as [| u lst''']; try contradiction.
+
       + now apply increasing_tail with y.
       + assert (H1 : In x (aux_remove x lst') -> False). {
           apply IHlst'. now apply increasing_tail with y. }
