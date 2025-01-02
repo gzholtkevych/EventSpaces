@@ -55,6 +55,33 @@ Proof.
 Defined.
 
 
+Lemma inc_without {X : Set} `{Enum X} :
+  forall x y lst, increasing (x :: y :: lst) -> increasing (x :: lst).
+Proof.
+  intros.
+  destruct lst as [| z lst'].
+  - constructor.
+  - inversion_clear H0. inversion_clear H2.
+    constructor; trivial. now apply Nat.lt_trans with (tonat y).
+Qed.
+
+
+Lemma inc_not_in_lst {X : Set} `{Enum X} :
+  forall x lst, increasing (x :: lst) -> ~ In x lst.
+Proof.
+  intros.
+  induction lst as [| y lst' IHlst'].
+  - intro. contradiction.
+  - intro N. simpl in N. destruct N as [H1 | H1].
+    + rewrite H1 in H0. inversion_clear H0.
+      now apply Nat.lt_irrefl with (tonat x).
+    + revert H1. apply IHlst'. inversion_clear H0.
+      destruct lst' as [| z lst'']; try constructor.
+      * inversion_clear H2. now apply Nat.lt_trans with (tonat y).
+      * now apply increasing_tail with y.
+Qed.
+
+
 Section AddOperation.
 Variable X : Set.
 Context `{Enum X}.
@@ -175,100 +202,23 @@ Context `{Enum X}.
     now apply aux_remove_keeps_increasing.
   Defined.
 
+
   Lemma remove_not_In : forall x A, ~ In x (remove x A).
   Proof.
     intros * N. destruct A as (lst, H0). simpl in N.
-    induction lst as [| y lst' IHlst'].
-    - simpl in N. contradiction.
-    - destruct lst' as [| z lst'']; simpl in N;
-      destruct (eq_dec x y) as [H1 | H1].
-      + contradiction.
-      + simpl in N. destruct N as [H2 | H2];
-        contradiction || rewrite H2 in H1. contradiction.
-      + simpl in N. simpl in IHlst'.
-        destruct (eq_dec x z) as [H2 | H2];
-        destruct N as [H3 | H3].
-        * rewrite <- H1 in H0. rewrite H3 in H0.
-          apply Nat.lt_irrefl with (tonat x).
-          now inversion_clear H0.
-        * rewrite <- H1 in H0. rewrite <- H2 in H0.
-          apply Nat.lt_irrefl with (tonat x).
-          now inversion_clear H0.
-        * symmetry in H3. contradiction.
-        * simpl in IHlst'.
-          assert (H4 : z = x \/ In x (aux_remove x lst'') -> False). {
-            apply IHlst'. now apply increasing_tail with y. }
-          elim H4. right.
-          destruct lst'' as [| u lst''']; try contradiction.
-          simpl in H3 |-*. destruct (eq_dec x u) as [H5 | H5].
-          elim H3; intro H6.
-          2 : { assumption. }
-          1 : { exfalso. rewrite <- H1 in H0. rewrite H6 in H0.
-            apply Nat.lt_irrefl with (tonat x).
-            apply Nat.lt_trans with (tonat z).
-            - now inversion_clear H0.
-            - assert (H7 : increasing (z :: x :: lst''')). {
-                now apply increasing_tail with x. }
-              now inversion_clear H7. }
-          simpl.
-        
-
-        * destruct N; contradiction || rewrite H2 in H1. contradiction.
-      + simpl in N. destruct (eq_dec x y) as [H1 | H1]; simpl in N.
-        destruct N as [H2 | H2].
-        * apply Nat.lt_irrefl with (tonat x). rewrite <- H1 in H0.
-          rewrite H2 in H0. now inversion_clear H0.
-        * rewrite H1 in H2.
-          assert (H3 : In x (aux_remove x (z :: lst'')) -> False). {
-            apply IHlst'. now apply increasing_tail with y. }
-          simpl in H3. destruct (eq_dec x z) as [H4 | H4].
-            rewrite H1 in H3. contradiction.
-
-          destruct lst'' as [| u lst''']; try contradiction.
-          simpl in H2.
-
-
-assert (H1 : In x (aux_remove x (z :: lst'')) -> False). {
-          apply IHlst'. now apply increasing_tail with y. }
-        apply H1. simpl in N. ; simpl in N;
-        simpl; destruct (eq_dec x z) as [H3 | H3].
-        * destruct N; trivial. exfalso. apply Nat.lt_irrefl with (tonat x).
-          rewrite <- H2 in H0. rewrite H4 in H0. now inversion_clear H0.
-        * destruct N as [H4 | H4]; try (symmetry in H4; contradiction).
-          simpl. right.
-          destruct lst'' as [| u lst''']; try contradiction.
-
-      + now apply increasing_tail with y.
-      + assert (H1 : In x (aux_remove x lst') -> False). {
-          apply IHlst'. now apply increasing_tail with y. }
-        simpl in N. destruct (eq_dec x y) as [H2 | H2];
-        destruct lst' as [| z lst''].
+    induction lst as [| y lst' IHlst']; simpl in N.
+    - contradiction.
+    - revert N.
+      assert (IH : In x (aux_remove x lst') -> False). {
+        apply IHlst'. now apply increasing_tail with y. }
+      destruct (eq_dec x y) as [H2 | H2].
+      + intro N.
+        assert (H3 : ~ In y lst'). { now apply inc_not_in_lst. }
+        rewrite H2 in N. contradiction.
+      + intro. simpl in N. destruct N as [N | N].
+        * symmetry in N. contradiction.
         * contradiction.
-        * simpl in N. destruct N as [H3 | H3].
-          -- rewrite H3 in H1. rewrite H3.
-             simpl in H1 |-*. destruct (eq_dec x x). contradict H1. 
+Qed.
 
- simpl in N. destruct (eq_dec x y) as [H1 | H1].
-        destruct lst' as [| z lst''].
-        * contradiction.
-        * simpl. destruct (eq_dec x z) as [H2 | H2].
-          2 : { simpl in N |-*.
-
-End FSet.
-
-
-Module EnumNat <: TEnum.
-Definition universe := nat.
-Definition tonat := fun n : universe => n.
-Lemma tonat_inj : forall n m, tonat n = tonat m -> n = m.
-Proof. intros. unfold tonat in H. assumption. Qed.
-End EnumNat.
-
-Print EnumNat.universe.
-
-Module FSetNat := FSet(EnumNat).
-Coercion FSetNat.tolist : FSetNat.type >-> list.
-
-Example set := FSetNat.totype (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil).
-Eval compute in FSetNat.tolist set.
-Eval simpl in FSetNat.tolist (FSetNat.remove 4 set).
+End RemoveOperation.
+Arguments remove {X} {_}.
