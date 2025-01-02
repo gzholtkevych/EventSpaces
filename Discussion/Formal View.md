@@ -1,4 +1,6 @@
-<H1>Clock Model: Formal View</H1>
+<H1>Formal View</H1>
+
+%% insert note text below %%
 
 # Clocks
 

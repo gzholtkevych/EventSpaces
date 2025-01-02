@@ -4,26 +4,30 @@ Require Import EDiagrams.FiniteSets.
 (* Here, the concepts of a participant identifier and
    an event tag is introduced *)
 
-Inductive PID (* type of participant IDs *) : Set := Pid : nat -> PID.
-Notation "# x" := (Pid x)  (at level 25, format "'#' x").
+Definition PID : Set := nat.  (* The type is inhabited by participant IDs *)
+Coercion unwrap_PID (p : PID) : nat := p.
 
-Module EnumPID.
-  Definition universe := PID.
-  Definition tonat := fun p : PID => let '#n := p in n.
-  Lemma tonat_inj : forall x y, tonat x = tonat y -> x = y.
-  (* tonat is injective *)
-  Proof.
-    intros. destruct x as (nx), y as (ny). simpl in H.
-    now rewrite H.
-  Qed.
-End EnumPID.
-
-Module FSetPID := FSet(EnumPID).
+Instance enumPID : Enum PID.
+Proof.
+  pose (tonat := fun n : PID => n).
+  constructor 1 with tonat. compute. auto.
+Defined.
 
 
-Record EventTag (* an event tag is determined by *) : Set :=
-{ pid (* the participant that observes the event *) : PID
-; num (* number of the event in the ledger of this participant *) : nat
+Definition TimeStamp : Set := nat.  (* The type is inhabited by timestamps *)
+Coercion unwrap_TS (t : TimeStamp) : nat := t.
+
+Instance enumTS : Enum TimeStamp.
+Proof.
+  pose (tonat := fun n : TimeStamp => n).
+  constructor 1 with tonat. compute. auto.
+Defined.
+
+
+Record ETag : Set :=
+(* The type is inhabited by event tags *) 
+{ pid : PID (* the participant that observes the event *)
+; num : nat (* the number of the event in the ledger of the participant *)
 }.
 
 (*
