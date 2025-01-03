@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Events.md",
-                "mode": "source",
-                "source": false
+                "file": "Space-Time Diagrams.md",
+                "mode": "preview",
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "Events"
+              "title": "Space-Time Diagrams"
             }
           }
         ]
@@ -154,6 +154,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "mermaid-tools:Open Mermaid Toolbar": false,
       "switcher:Відкрити провідник файлів": false,
       "graph:Граф": false,
       "canvas:Створити нове полотно": false,
@@ -164,11 +165,11 @@
   },
   "active": "4f4f8817eb4a2da2",
   "lastOpenFiles": [
-    "Space-Time Diagrams.md",
-    "Events.md",
     "Clocks.md",
-    "Conceptual View.md",
     "Formal View.md",
+    "Space-Time Diagrams.md",
+    "Conceptual View.md",
+    "Events.md",
     "_Templates/note.template.md",
     "_Templates"
   ]
